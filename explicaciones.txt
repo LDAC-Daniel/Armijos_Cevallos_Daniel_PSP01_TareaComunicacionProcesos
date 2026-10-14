@@ -1,0 +1,107 @@
+PROGRAMACIÓN DE SERVICIOS Y PROCESOS
+
+Tarea: PSP01 - Comunicación entre procesos
+Alumno: Lenny Daniel Armijos Cevallos
+Curso: 2.º DAM
+Enlace repositorio:
+https://github.com/LDAC-Daniel/Armijos_Cevallos_Daniel_PSP01_TareaComunicacionProcesos
+
+1. Estructura del proyecto
+El proyecto se ha desarrollado en IntelliJ y está organizado en las siguientes carpetas y
+archivos:
+- src/org/iesalandalus/programacion/psp/Tuberia.java
+- src/org/iesalandalus/programacion/psp/Lector.java
+- src/org/iesalandalus/programacion/psp/Escritor.java
+- libs/entrada-1.0.3.jar, que contiene la clase Entrada y se ha añadido al
+proyecto como librería.
+Las tres clases Java pertenecen al mismo paquete:
+org.iesalandalus.programacion.psp.
+
+2. Ejercicio 1: Clase Tuberia
+La clase Tuberia se encarga de crear dos procesos hijo utilizando ProcessBuilder. El
+primero ejecuta el comando DIR y el segundo SORT, pasando cada comando y sus
+argumentos por separado.
+Los comandos utilizados son:
+- Primer proceso: CMD /C DIR
+- Segundo proceso: CMD /C SORT
+El objetivo es que la salida del primer proceso se envíe al segundo para que pueda ordenar
+el contenido del directorio. Para conseguirlo, el proceso padre se encarga de transferir los
+datos de uno a otro.
+El funcionamiento es el siguiente:
+1. Se lee la salida del primer proceso mediante getInputStream(), utilizando
+InputStreamReader y BufferedReader para poder leer el contenido línea a
+línea.
+2. Cada línea se escribe en la entrada del segundo proceso mediante
+getOutputStream(), con ayuda de OutputStreamWriter y BufferedWriter.
+3. Una vez que se han enviado todos los datos, se cierra el flujo de escritura del
+segundo proceso. Este paso es importante porque permite que SORT detecte que ya
+no recibirá más información y termine de procesarla.
+4. Se lee la salida de SORT y se muestra el resultado por consola.
+5. Por último, se utiliza waitFor() para esperar a que finalicen los dos procesos y se
+muestra el mensaje Finalizada la ejecución.
+También se controlan las posibles excepciones IOException, que pueden producirse al
+iniciar los procesos o trabajar con los flujos, e InterruptedException, que puede
+aparecer al utilizar waitFor().
+Observación: al ejecutar el programa en IntelliJ IDEA, algunos caracteres con tilde pueden
+aparecer incorrectamente en la salida de DIR. Esto puede deberse a una diferencia entre la
+codificación de Windows y la de la consola de IntelliJ, por lo que no implica necesariamente
+un error en el código.
+
+3. Ejercicio 2: Clases Lector y Escritor
+En este ejercicio se utilizan dos clases para intercambiar información entre procesos:
+Lector y Escritor.
+
+Clase Lector
+La clase Lector realiza las siguientes tareas:
+- Pide al usuario un número por teclado mediante Entrada.entero(), tal como
+indica el enunciado.
+- Crea un proceso hijo que ejecuta la clase Escritor utilizando ProcessBuilder y
+los argumentos necesarios para indicar el classpath y la clase principal.
+- Envía el número introducido al proceso hijo a través de getOutputStream(). Para
+ello, escribe el número seguido de un salto de línea y cierra el flujo cuando termina
+de enviarlo.
+- Lee mediante getInputStream() los diez números que devuelve Escritor y los
+muestra por consola.
+- Comprueba también el flujo de errores con getErrorStream(), para poder
+mostrar los posibles mensajes de error del proceso hijo.
+- Finalmente, utiliza waitFor() para esperar a que termine el proceso.
+
+Clase Escritor
+La clase Escritor recibe el número enviado por Lector a través de la entrada
+estándar (System.in). Para leerlo, utiliza Entrada.entero().
+Una vez obtenido el número, muestra por la salida estándar los diez números siguientes,
+escribiendo uno en cada línea mediante un bucle for.
+Tal como se indica en la documentación de la práctica, Escritor funciona de forma
+independiente. Es decir, no necesita saber si lo ha iniciado Lector o cualquier otro
+proceso, ya que simplemente lee un número de la entrada estándar y genera el resultado
+correspondiente.
+
+Configuración del classpath
+Para que el proceso hijo pueda ejecutarse correctamente, necesita tener acceso tanto a la
+clase Escritor como a la librería que contiene Entrada.
+En lugar de indicar manualmente las rutas, se obtiene el classpath utilizado por el programa
+con System.getProperty("java.class.path") y se pasa al nuevo proceso. De esta
+forma, se aprovecha la misma configuración con la que se ha iniciado Lector, evitando
+depender de rutas específicas del equipo y facilitando la ejecución desde IntelliJ IDEA.
+
+4. Comprobación del funcionamiento
+Se han comprobado los dos ejercicios para verificar que la comunicación entre procesos
+funciona correctamente.
+- Tuberia: ejecuta DIR, envía su salida a SORT y muestra el listado ordenado por
+consola. Al finalizar, aparece el mensaje Finalizada la ejecución.
+- Lector y Escritor: al introducir un número, como por ejemplo 34, el programa
+muestra los diez números siguientes, desde el 35 hasta el 44, uno por línea.
+Con estas pruebas se comprueba que los procesos se comunican mediante sus flujos de
+entrada y salida y que los resultados se reciben correctamente.
+
+5. Cómo ejecutar el proyecto
+Para ejecutar los programas desde IntelliJ IDEA, hay que seguir estos pasos:
+1. Abrir el proyecto en IntelliJ IDEA y comprobar que la librería entrada-1.0.3.jar,
+situada en la carpeta libs, está configurada correctamente.
+2. Para probar el primer ejercicio, hacer clic derecho sobre la clase Tuberia y
+seleccionar Run 'Tuberia.main()'.
+3. Para probar el segundo ejercicio, hacer clic derecho sobre la clase Lector y
+seleccionar Run 'Lector.main()'. Cuando el programa lo solicite, introducir un
+número por teclado.
+No es necesario ejecutar Escritor manualmente, ya que es la propia clase Lector la que
+se encarga de iniciar ese proceso.
